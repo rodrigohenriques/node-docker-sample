@@ -1,0 +1,11 @@
+{
+  "name": "postgres-docker-sample",
+  "version": "1.0.0",
+  "description": "Basic restful api for test purposes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rodrigohenriques",
+  "license": "ISC"
+}
