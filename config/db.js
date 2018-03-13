@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const dbURL = "mongodb://mongo:27017"
+const dbURL = process.env.MONGODB_URI || "mongodb://mongo:27017"
 
 //DB setup
 mongoose.connection.on('connected', function () {
