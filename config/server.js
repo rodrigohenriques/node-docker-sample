@@ -18,7 +18,7 @@ connection.once('open', function () {
     middleware.bind(server)
     router.bind(server)
 
-    server.listen(port);
-
-    console.log('Magic happens on port ' + port);
+    server.listen(port, function() {
+        console.log('Magic happens on port ' + port);
+    });
 });
