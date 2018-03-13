@@ -10,8 +10,10 @@
   "author": "rodrigohenriques",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "mongoose": "^5.0.10",
-    "nodemon": "^1.17.1"
+    "nodemon": "^1.17.1",
+    "uuid": "^3.2.1"
   }
 }

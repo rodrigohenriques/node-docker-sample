@@ -1,71 +1,66 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('../models/order') 
+const Order = require('../models/order')
 
 router.get('/', getOrders)
 
-router.get('/ongoing', getOngoingOrders)
-
-router.get('/available', getAvailableOrders)
-
 router.post('/', createOrder)
 
-router.patch('/:orderId', updateOrder)
+router.put('/:uuid/location', updateOrderLocation)
 
-router.delete('/:orderId', deleteOrder)
+router.get('/:uuid', getOrderById)
 
-router.get('/:orderId', getOrderById)
-
-function getOrders(req, res) {
-    Order.find().exec(function (err, orders) {
-        if (err) throw err;
-
-        res.status(200).json(orders)
-    })
-}
-
-function getOngoingOrders(req, res) {
-    res.send('It should return only the ongoing orders');
-}
-
-function getAvailableOrders(req, res) {
-    res.send('It should return onyl the available orders');
+async function getOrders(req, res) {
+    let orders = await Order.find({}).exec()
+    res.status(200).json(orders)
 }
 
 function createOrder(req, res) {
     let body = req.body
-    
-    console.log('>>>>>> Body: ', body)
 
-    let newOrder = new Order()
+    if (body && body.destination) {
+        let newOrder = new Order()
 
-    newOrder.destination = {
-        lat: 123,
-        long: 123
+        newOrder.destination = body.destination
+        newOrder.currentLocation = body.current_location
+
+        newOrder.save()
+
+        return res.status(201).json(newOrder)
     }
 
-    newOrder.status = "idle"
-
-    newOrder.save(function (err) {
-        if (err) throw err;
-
-        res.status(201).json(newOrder)
-    })
+    return res.status(500).json({ message: "You must specify a destination for a new order" })
 }
 
-function updateOrder(req, res) {
-    let id = req.params.orderId
-    res.send('It should update the specified order: ' + id);
+async function updateOrderLocation(req, res) {
+    let id = req.params.uuid
+
+    let order = await Order.findOne({ _id: id }).exec()
+
+    if (order == undefined) {
+        return res.status(500).json({ message: "This order can't be found" })
+    }
+
+    if (req.body && req.body.lat && req.body.lng) {
+        order.currentLocation.lat = req.body.lat
+        order.currentLocation.lng = req.body.lng
+        order.save()
+        res.status(200).json(order)
+    } else {
+        res.status(500).json({ message: "You must pass the new current location to update that order" })
+    }
 }
 
-function deleteOrder(req, res) {
-    let id = req.params.orderId
-    res.send('It should delete the specified order: ' + id);
-}
+async function getOrderById(req, res) {
+    let id = req.params.uuid
+    let order = await Order.findOne({ _id: id }).exec()
+    
+    if (order) {
+        res.status(200).json(order)
+    } else {
+        res.status(500).json({ message: "This order can't be found" })
+    }
 
-function getOrderById(req, res) {
-    let id = req.params.orderId
-    res.send('It should return data from order with id ' + id)
 }
 
 module.exports = router;
