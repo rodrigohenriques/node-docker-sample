@@ -4,13 +4,21 @@ const middleware = require('./middleware')
 const router = require('./router')
 const db = require('./db')
 
-const server = express()
+let connection = db.connect()
 
-server.use(bodyParser.json())
+connection.on('error', console.error.bind(console, 'connection error:'));
 
-middleware.bind(server)
-router.bind(server)
+connection.once('open', function () {
+    var port = process.env.PORT || 8080;
 
-server.listen(8080, () => console.log('Example app listening on port 8080!'))
+    const server = express()
 
-db.connect()
+    server.use(bodyParser.json())
+    
+    middleware.bind(server)
+    router.bind(server)
+
+    server.listen(port);
+
+    console.log('Magic happens on port ' + port);
+});
