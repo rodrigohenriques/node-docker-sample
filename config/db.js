@@ -19,5 +19,8 @@ process.on('SIGINT', function () {
 });
 
 module.exports = {
-    connect: () => mongoose.connect(dbURL)
+    connect: () => {
+        mongoose.connect(dbURL)
+        return mongoose.connection
+    }
 }
