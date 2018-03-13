@@ -6,8 +6,9 @@ services:
     build: .
     ports:
       - "8080:8080"
-    links:
+    depends_on:
       - mongo
+    command: ["./wait-for-it.sh", "mongo:27017", "--", "npm", "start"]
   mongo:
     container_name: mongo
     image: mongo
