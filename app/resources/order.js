@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/order')
+const Pusher = require('../../service/Pusher')
 
 router.get('/', getOrders)
 
@@ -26,6 +27,8 @@ function createOrder(req, res) {
 
         newOrder.save()
 
+        Pusher.trigger('order', newOrder._id, newOrder);
+
         return res.status(201).json(newOrder)
     }
 
@@ -45,6 +48,9 @@ async function updateOrderLocation(req, res) {
         order.currentLocation.lat = req.body.lat
         order.currentLocation.lng = req.body.lng
         order.save()
+
+        Pusher.trigger('order-stream', order._id, order);
+
         res.status(200).json(order)
     } else {
         res.status(500).json({ message: "You must pass the new current location to update that order" })
