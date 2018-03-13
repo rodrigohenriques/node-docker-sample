@@ -5,4 +5,5 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 8080
+VOLUME [ ".:/usr/src/app" ]
 CMD [ "npm", "start" ]
