@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const Order = require('../models/order') 
 
 router.get('/', getOrders)
 
@@ -16,7 +17,11 @@ router.delete('/:orderId', deleteOrder)
 router.get('/:orderId', getOrderById)
 
 function getOrders(req, res) {
-    res.send('It should return the order list');
+    Order.find().exec(function (err, orders) {
+        if (err) throw err;
+
+        res.status(200).json(orders)
+    })
 }
 
 function getOngoingOrders(req, res) {
@@ -28,7 +33,24 @@ function getAvailableOrders(req, res) {
 }
 
 function createOrder(req, res) {
-    res.send('It should create an order');
+    let body = req.body
+    
+    console.log('>>>>>> Body: ', body)
+
+    let newOrder = new Order()
+
+    newOrder.destination = {
+        lat: 123,
+        long: 123
+    }
+
+    newOrder.status = "idle"
+
+    newOrder.save(function (err) {
+        if (err) throw err;
+
+        res.status(201).json(newOrder)
+    })
 }
 
 function updateOrder(req, res) {
