@@ -1,72 +1,74 @@
-const express = require('express');
-const router = express.Router();
 const Order = require('../models/order')
 const Pusher = require('../../service/Pusher')
 
-router.get('/', getOrders)
-
-router.post('/', createOrder)
-
-router.put('/:uuid/location', updateOrderLocation)
-
-router.get('/:uuid', getOrderById)
-
 async function getOrders(req, res) {
-    let orders = await Order.find({}).exec()
-    res.status(200).json(orders)
+    try {
+        let orders = await Order.find({}).exec()
+        res.status(200).json(orders)
+    } catch (err) {
+        res.send(err)
+    }
 }
 
 function createOrder(req, res) {
-    let body = req.body
+    try {
+        let body = req.body
 
-    if (body && body.destination) {
-        let newOrder = new Order()
+        if (body && body.destination) {
+            let newOrder = new Order()
 
-        newOrder.destination = body.destination
-        newOrder.currentLocation = body.current_location
+            newOrder.destination = body.destination
+            newOrder.currentLocation = body.current_location
 
-        newOrder.save()
+            newOrder.save()
 
-        Pusher.trigger('order', newOrder._id, newOrder);
+            Pusher.trigger('order', newOrder._id, newOrder);
 
-        return res.status(201).json(newOrder)
+            return res.status(201).json(newOrder)
+        }
+
+        return res.status(500).json({ message: "You must specify a destination for a new order" })
+    } catch (err) {
+        res.send(err)
     }
-
-    return res.status(500).json({ message: "You must specify a destination for a new order" })
 }
 
-async function updateOrderLocation(req, res) {
-    let id = req.params.uuid
+async function updateCurrentLocation(req, res) {
+    try {
+        let order = await Order.findOne({ _id: req.params.id }).exec()
 
-    let order = await Order.findOne({ _id: id }).exec()
+        if (order == undefined) {
+            return res.status(500).json({ message: "This order can't be found" })
+        }
 
-    if (order == undefined) {
-        return res.status(500).json({ message: "This order can't be found" })
-    }
+        if (req.body && req.body.lat && req.body.lng) {
+            order.currentLocation.lat = req.body.lat
+            order.currentLocation.lng = req.body.lng
+            order.save()
 
-    if (req.body && req.body.lat && req.body.lng) {
-        order.currentLocation.lat = req.body.lat
-        order.currentLocation.lng = req.body.lng
-        order.save()
+            Pusher.trigger('order-stream', order._id, order);
 
-        Pusher.trigger('order-stream', order._id, order);
-
-        res.status(200).json(order)
-    } else {
-        res.status(500).json({ message: "You must pass the new current location to update that order" })
+            res.status(200).json(order)
+        } else {
+            res.status(500).json({ message: "You must pass the new current location to update that order" })
+        }
+    } catch (err) {
+        res.send(err)
     }
 }
 
 async function getOrderById(req, res) {
-    let id = req.params.uuid
-    let order = await Order.findOne({ _id: id }).exec()
-    
-    if (order) {
-        res.status(200).json(order)
-    } else {
-        res.status(500).json({ message: "This order can't be found" })
-    }
+    try {
+        let order = await Order.findOne({ _id: req.params.id }).exec()
 
+        if (order) {
+            res.status(200).json(order)
+        } else {
+            res.status(500).json({ message: "This order can't be found" })
+        }
+    } catch (err) {
+        res.send(err)
+    }
 }
 
-module.exports = router;
+module.exports = { getOrders, createOrder, updateCurrentLocation, getOrderById };
