@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const router = require('./config/router')
 const db = require('./config/db')
+const settings = require('./config/settings')
 
 const server = express()
 
@@ -17,9 +18,7 @@ connection.once('open', function () {
     
     router.bind(server)
 
-    var port = process.env.PORT || 8080;
-
-    server.listen(port, () => console.log('Magic happens on port ' + port))
+    server.listen(settings.port, () => console.log('Magic happens on port ' + port))
 });
 
 function handleError(err, req, res, next) {

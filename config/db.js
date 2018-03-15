@@ -1,10 +1,7 @@
 const mongoose = require('mongoose')
+const settings = require('./settings')
 
-var dbURL = process.env.MONGODB_URI || "mongodb://mongo:27017"
-
-if (process.env.NODE_ENV === "test") {
-    dbURL = "mongodb://mongo:27017/test"
-}
+var dbURL = settings.dbURL
 
 //DB setup
 mongoose.connection.on('connected', function () {
