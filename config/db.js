@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 
-const dbURL = process.env.MONGODB_URI || "mongodb://mongo:27017"
+var dbURL = process.env.MONGODB_URI || "mongodb://mongo:27017"
+
+if (process.env.NODE_ENV === "test") {
+    dbURL = "mongodb://mongo:27017/test"
+}
 
 //DB setup
 mongoose.connection.on('connected', function () {

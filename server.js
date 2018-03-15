@@ -1,16 +1,16 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
-const router = require('./router')
-const db = require('./db')
+const router = require('./config/router')
+const db = require('./config/db')
+
+const server = express()
 
 let connection = db.connect()
 
 connection.on('error', console.error.bind(console, 'connection error:'));
 
 connection.once('open', function () {
-    const server = express()
-
     server.use(bodyParser.json())
     server.use(morgan('combined'))
     server.use(handleError)
@@ -32,3 +32,5 @@ function handleError(err, req, res, next) {
 
     res.status(err.status || 500).json(errorBody)
 }
+
+module.exports = server
