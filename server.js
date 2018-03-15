@@ -18,7 +18,7 @@ connection.once('open', function () {
     
     router.bind(server)
 
-    server.listen(settings.port, () => console.log('Magic happens on port ' + port))
+    server.listen(settings.port, () => console.log('Magic happens on port ' + settings.port))
 });
 
 function handleError(err, req, res, next) {

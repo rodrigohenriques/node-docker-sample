@@ -19,6 +19,7 @@ function createOrder(req, res) {
 
             newOrder.destination = body.destination
             newOrder.currentLocation = body.current_location
+            newOrder.state = "idle"
 
             newOrder.save()
 
@@ -44,6 +45,15 @@ async function updateCurrentLocation(req, res) {
         if (req.body && req.body.lat && req.body.lng) {
             order.currentLocation.lat = req.body.lat
             order.currentLocation.lng = req.body.lng
+            
+            let distance = order.distance()
+
+            if (distance <= 10) {
+                order.state = "delivered"
+            } else {
+                order.state = "ongoing"
+            }
+
             order.save()
 
             Pusher.trigger('order-stream', order._id, order);
