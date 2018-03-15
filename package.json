@@ -1,5 +1,5 @@
 {
-  "name": "postgres-docker-sample",
+  "name": "node-docker-sample",
   "version": "1.0.0",
   "description": "Basic restful api for test purposes",
   "main": "server.js",
